@@ -9,18 +9,19 @@ import (
 )
 
 type YAMLConfig struct {
-	ManagerNode NodeConfig `yaml:"managerNode"`
-	CliNodes []NodeConfig `yaml:"cliNodes"`
+	ManagerNode NodeConfig   `yaml:"managerNode"`
+	CliNodes    []NodeConfig `yaml:"cliNodes"`
 }
 type NodeConfig struct {
-	Host string `yaml:"host"`
-	Port uint16 `yaml:"port"`
-	User string `yaml:"user"`
-	Password string `yaml:"password"`
-	Database string `yaml:"database"`
-	Charset string `yaml:"charset"`
+	Host       string `yaml:"host"`
+	Port       uint16 `yaml:"port"`
+	User       string `yaml:"user"`
+	Password   string `yaml:"password"`
+	Database   string `yaml:"database"`
+	Charset    string `yaml:"charset"`
 	Binlogfile string `yaml:"binlogfile"`
-	Binlogpos uint32 `yaml:"binlogpos"`
+	Binlogpos  uint32 `yaml:"binlogpos"`
+	AutoPos    bool   `yaml:"autopos"`
 }
 
 func GetConfig(fileName string) *YAMLConfig {

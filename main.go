@@ -20,6 +20,6 @@ func main() {
 	managerConn.InitSchema(cfg.ManagerNode.Database, initTables)
 	managerConn.InitData(cfg.MakeCliDSNs())
 	for _, cliNode := range cfg.CliNodes {
-		schema.SyncSchema(cliNode, managerConn)
+		schema.ListeningBinglog(cliNode, managerConn)
 	}
 }

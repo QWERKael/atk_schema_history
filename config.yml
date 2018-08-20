@@ -15,6 +15,7 @@ cliNodes:
     charset: "utf8"
     binlogfile: "mysql-bin.000001"
     binlogpos: 4
+    autopos: true
 #  -
 #    host: "192.168.40.1282"
 #    port: 3306
@@ -24,3 +25,4 @@ cliNodes:
 #    charset: "utf8"
 #    binlogfile: "mysql-bin.000001"
 #    binlogpos: 4
+#    autopos: true

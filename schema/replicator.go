@@ -9,10 +9,16 @@ import (
 	"fmt"
 	"time"
 	"atk_schema_history/config"
+	"atk_schema_history/connect"
 )
 
-func SyncSchema(nc config.NodeConfig,managerConn *ManagerConn) {
-	// Start sync with specified binlog file and position
+func ListeningBinglog(nc config.NodeConfig, managerConn *ManagerConn) {
+	dsn := config.MakeDSN(nc)
+	if nc.AutoPos {
+		_, _, rst, _ := connect.CommonQuery(connect.GetConn(dsn), "SHOW MASTER STATUS")
+		nc.Binlogfile = rst[0][0].(string)
+		nc.Binlogpos = rst[0][1].(uint32)
+	}
 	syncer := replication.NewBinlogSyncer(config.MakeBinlogSyncerConfig(nc))
 	streamer, err := syncer.StartSync(mysql.Position{nc.Binlogfile, nc.Binlogpos})
 	if err != nil {
@@ -31,7 +37,7 @@ func SyncSchema(nc config.NodeConfig,managerConn *ManagerConn) {
 				if schemaName == "" {
 					schemaName = fmt.Sprintf("%s", queryEvent.Schema)
 				}
-				managerConn.SyncSchema(config.MakeDSN(nc), schemaName, tableName, query, time.Unix(int64(ev.Header.Timestamp), 0))
+				managerConn.SyncSchema(dsn, schemaName, tableName, query, time.Unix(int64(ev.Header.Timestamp), 0))
 			}
 		}
 	}
