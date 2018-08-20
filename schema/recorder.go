@@ -43,10 +43,10 @@ func (mc *ManagerConn) InitSchema(schemaName string, initTables map[string]strin
 	}
 }
 
-func (mc *ManagerConn) initData(DSN []string) {
+func (mc *ManagerConn) InitData(DSNs []string) {
 	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", time.Now().Format("2006-01-02 15:04:05"))
 	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", time.Now().Format("2006-01-02 15:04:05"))
-	for _, ds := range DSN {
+	for _, ds := range DSNs {
 		db := connect.GetConn(ds)
 		tableCN, _, tablesRst, _ := connect.CommonQuery(db, tablesStmt)
 		columnCN, _, columnsRst, _ := connect.CommonQuery(db, columnsStmt)
@@ -57,6 +57,7 @@ func (mc *ManagerConn) initData(DSN []string) {
 
 func (mc *ManagerConn) SyncSchema(DSN string, schemaName string, tableName string, ddlStmt string, binlogEventTime time.Time) {
 	db := connect.GetConn(DSN)
+	defer db.Close()
 	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
 	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
 	tableCN, _, tablesRst, _ := connect.CommonQuery(db, tablesStmt)
