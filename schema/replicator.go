@@ -17,7 +17,7 @@ func ListeningBinglog(nc config.NodeConfig, managerConn *ManagerConn) {
 	if nc.AutoPos {
 		_, _, rst, _ := connect.CommonQuery(connect.GetConn(dsn), "SHOW MASTER STATUS")
 		nc.Binlogfile = rst[0][0].(string)
-		nc.Binlogpos = rst[0][1].(uint32)
+		nc.Binlogpos = uint32(rst[0][1].(uint64))
 	}
 	syncer := replication.NewBinlogSyncer(config.MakeBinlogSyncerConfig(nc))
 	streamer, err := syncer.StartSync(mysql.Position{nc.Binlogfile, nc.Binlogpos})

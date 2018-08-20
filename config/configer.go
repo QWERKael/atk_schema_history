@@ -34,7 +34,7 @@ func GetConfig(fileName string) *YAMLConfig {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-	fmt.Printf("%#v", cfg)
+	//fmt.Printf("%#v", cfg)
 	return cfg
 }
 

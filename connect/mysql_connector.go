@@ -54,39 +54,39 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 			switch t := col.(type) {
 			case *int8:
 				v := *(*int8)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *int16:
 				v := *(*int16)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *int32:
 				v := *(*int32)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *int64:
 				v := *(*int64)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *uint8:
 				v := *(*uint8)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *uint16:
 				v := *(*uint16)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *uint32:
 				v := *(*uint32)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *uint64:
 				v := *(*uint64)(t)
-				fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %d\n", reflect.TypeOf(v), v)
 				row = append(row, v)
 			case *sql.RawBytes:
 				v := *(*sql.RawBytes)(t)
-				fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
 				if columnTypes[i].DatabaseTypeName() == "BLOB" {
 					row = append(row, v)
 				} else {
@@ -94,7 +94,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 				}
 			case *sql.NullString:
 				v := *(*sql.NullString)(t)
-				fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
 				if v.Valid {
 					row = append(row, v.String)
 				} else {
@@ -102,7 +102,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 				}
 			case *sql.NullInt64:
 				v := *(*sql.NullInt64)(t)
-				fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
 				if v.Valid {
 					row = append(row, v.Int64)
 				} else {
@@ -110,7 +110,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 				}
 			case *sql.NullFloat64:
 				v := *(*sql.NullFloat64)(t)
-				fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
+				//fmt.Printf("\ntype is %s, value is %#v\n", reflect.TypeOf(v), v)
 				if v.Valid {
 					row = append(row, v.Float64)
 				} else {
@@ -126,7 +126,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 				}
 			case *mysql.NullTime:
 				v := *(*mysql.NullTime)(t)
-				fmt.Printf("\ntype is %s, value is %#v\n, DB Type: %s\n", reflect.TypeOf(v), v, columnTypes[i].DatabaseTypeName())
+				//fmt.Printf("\ntype is %s, value is %#v\n, DB Type: %s\n", reflect.TypeOf(v), v, columnTypes[i].DatabaseTypeName())
 				if v.Valid {
 					row = append(row, v.Time)
 				} else {
@@ -138,7 +138,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 			//fmt.Printf("\n%s: %#v, Value Type: %s, Scan Type: %s, DB Type: %s\n", columnNames[i], col, reflect.TypeOf(col), columnTypes[i].ScanType(), columnTypes[i].DatabaseTypeName())
 		}
 		rst = append(rst, row)
-		fmt.Println("-----------------------------------")
+		//fmt.Println("-----------------------------------")
 	}
 	if err = rows.Err(); err != nil {
 		return nil, nil, nil, err
@@ -148,7 +148,7 @@ func CommonQuery(db *sql.DB, stmt string) ([]string, []*sql.ColumnType, [][]inte
 
 func CommonInsert(db *sql.DB, tableName string, columnNames []string, values [][]interface{}) []sql.Result {
 	insertStmt := fmt.Sprintf("INSERT INTO %s(`%s`) VALUES(%s)", tableName, strings.Join(columnNames, "`, `"), "?"+strings.Repeat(", ?", len(columnNames)-1))
-	fmt.Println(insertStmt)
+	//fmt.Println(insertStmt)
 	ip, _ := db.Prepare(insertStmt)
 	var rsts = make([]sql.Result, len(values))
 	for i, val := range values {
