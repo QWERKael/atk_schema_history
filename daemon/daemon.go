@@ -35,7 +35,7 @@ func (p *Program) run() {
 	managerConn.InitSchema(cfg.ManagerNode.Database, initTables)
 	if cfg.CommonConfig.Initdata {
 		log.Println("初始化数据...")
-		managerConn.InitData(cfg.MakeCliDSNs())
+		go managerConn.InitData(cfg.MakeCliDSNs())
 	}
 	log.Println("监听DDL...")
 	for _, cliNode := range cfg.CliNodes {
