@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"atk_schema_history/connect"
+	"atk_schema_history/config"
 )
 
 type ManagerConn struct {
@@ -43,11 +44,12 @@ func (mc *ManagerConn) InitSchema(schemaName string, initTables map[string]strin
 	}
 }
 
-func (mc *ManagerConn) InitData(DSNs []string) {
-	now := time.Now()
-	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", now.Format("2006-01-02 15:04:05"))
-	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", now.Format("2006-01-02 15:04:05"))
-	for _, ds := range DSNs {
+func (mc *ManagerConn) InitData(cliNodes []config.NodeConfig) {
+	for _, cliNode := range cliNodes {
+		now := time.Now()
+		tablesStmt := fmt.Sprintf("SELECT *, '%s' AS host, '%d' AS port, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", cliNode.Host, cliNode.Port, now.Format("2006-01-02 15:04:05"))
+		columnsStmt := fmt.Sprintf("SELECT *, '%s' AS host, '%d' AS port, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", cliNode.Host, cliNode.Port, now.Format("2006-01-02 15:04:05"))
+		ds := config.MakeDSN(cliNode)
 		db := connect.GetConn(ds)
 		tableCN, _, tablesRst, _ := connect.CommonQuery(db, tablesStmt)
 		columnCN, _, columnsRst, _ := connect.CommonQuery(db, columnsStmt)
@@ -56,16 +58,16 @@ func (mc *ManagerConn) InitData(DSNs []string) {
 	}
 }
 
-func (mc *ManagerConn) SyncSchema(DSN string, schemaName string, tableName string, ddlStmt string, binlogEventTime time.Time) {
+func (mc *ManagerConn) SyncSchema(DSN string, host string, port uint16, schemaName string, tableName string, ddlStmt string, binlogEventTime time.Time) {
 	db := connect.GetConn(DSN)
 	defer db.Close()
-	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
-	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
+	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS host, '%d' AS port, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", host, port, binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
+	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS host, '%d' AS port, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'", host, port, binlogEventTime.Format("2006-01-02 15:04:05"), schemaName, tableName)
 	tableCN, _, tablesRst, _ := connect.CommonQuery(db, tablesStmt)
 	columnCN, _, columnsRst, _ := connect.CommonQuery(db, columnsStmt)
 	connect.CommonInsert(mc.Conn, "TABLES_LOG", tableCN, tablesRst)
 	connect.CommonInsert(mc.Conn, "COLUMNS_LOG", columnCN, columnsRst)
-	sclCN := []string{"ddl_stmt", "create_stmt", "insert_time"}
-	sclRst := [][]interface{}{{ddlStmt, connect.GetCreateTable(db, schemaName, tableName), binlogEventTime}}
+	sclCN := []string{"host", "port", "ddl_stmt", "create_stmt", "insert_time"}
+	sclRst := [][]interface{}{{host, port, ddlStmt, connect.GetCreateTable(db, schemaName, tableName), binlogEventTime}}
 	connect.CommonInsert(mc.Conn, "SCHEMA_CHANGE_LOG", sclCN, sclRst)
 }

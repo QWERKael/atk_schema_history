@@ -37,7 +37,7 @@ func ListeningBinglog(nc config.NodeConfig, managerConn *ManagerConn) {
 				if schemaName == "" {
 					schemaName = fmt.Sprintf("%s", queryEvent.Schema)
 				}
-				managerConn.SyncSchema(dsn, schemaName, tableName, query, time.Unix(int64(ev.Header.Timestamp), 0))
+				managerConn.SyncSchema(dsn, nc.Host, nc.Port, schemaName, tableName, query, time.Unix(int64(ev.Header.Timestamp), 0))
 			}
 		}
 	}
