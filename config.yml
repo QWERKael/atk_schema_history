@@ -9,7 +9,7 @@ managerNode:
   charset: "utf8"
 cliNodes:
   -
-    host: "192.168.40.128"
+    hosts: "192.168.40.128"
     port: 3306
     user: "admin"
     password: "123456"

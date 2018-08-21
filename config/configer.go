@@ -6,11 +6,13 @@ import (
 	"gopkg.in/yaml.v2"
 	"fmt"
 	"github.com/siddontang/go-mysql/replication"
+	"strings"
 )
 
 type YAMLConfig struct {
-	CommonConfig CommonConfig
+	CommonConfig CommonConfig `yaml:"commonConfig"`
 	ManagerNode  NodeConfig   `yaml:"managerNode"`
+	CliTemplate  NodeConfig   `yaml:"cliTemplate"`
 	CliNodes     []NodeConfig `yaml:"cliNodes"`
 }
 
@@ -19,6 +21,7 @@ type CommonConfig struct {
 }
 type NodeConfig struct {
 	Host       string `yaml:"host"`
+	Hosts      string `yaml:"hosts"`
 	Port       uint16 `yaml:"port"`
 	User       string `yaml:"user"`
 	Password   string `yaml:"password"`
@@ -39,7 +42,18 @@ func GetConfig(fileName string) *YAMLConfig {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-	//fmt.Printf("%#v", cfg)
+	for _, cliNode := range cfg.CliNodes {
+		if cliNode.Host == "" && cliNode.Hosts != "" {
+			for _, host := range strings.Split(cliNode.Hosts, ",") {
+				cliNode.Hosts = ""
+				cliNode.Host = host
+				cfg.CliNodes = append(cfg.CliNodes, cliNode)
+			}
+		} else if (cliNode.Host == "" && cliNode.Hosts == "") || (cliNode.Host != "" && cliNode.Hosts != "") {
+			panic(fmt.Errorf("配置文件错误，host和hosts不能同时为空或者同时不为空"))
+		}
+	}
+	//fmt.Printf("%#v", cfg.CliNodes)
 	return cfg
 }
 

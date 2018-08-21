@@ -8,7 +8,7 @@ import (
 	"atk_schema_history/connect"
 )
 
-type Program struct {}
+type Program struct{}
 
 func (p *Program) Start(s service.Service) error {
 	log.Println("开始服务")
@@ -39,6 +39,9 @@ func (p *Program) run() {
 	}
 	log.Println("监听DDL...")
 	for _, cliNode := range cfg.CliNodes {
-		go schema.ListeningBinglog(cliNode, managerConn)
+		if cliNode.Host != "" {
+			log.Printf("%#v", cliNode)
+			go schema.ListeningBinglog(cliNode, managerConn)
+		}
 	}
 }
