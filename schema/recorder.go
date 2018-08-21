@@ -44,8 +44,9 @@ func (mc *ManagerConn) InitSchema(schemaName string, initTables map[string]strin
 }
 
 func (mc *ManagerConn) InitData(DSNs []string) {
-	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", time.Now().Format("2006-01-02 15:04:05"))
-	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", time.Now().Format("2006-01-02 15:04:05"))
+	now := time.Now()
+	tablesStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", now.Format("2006-01-02 15:04:05"))
+	columnsStmt := fmt.Sprintf("SELECT *, '%s' AS insert_time FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA', 'SYS')", now.Format("2006-01-02 15:04:05"))
 	for _, ds := range DSNs {
 		db := connect.GetConn(ds)
 		tableCN, _, tablesRst, _ := connect.CommonQuery(db, tablesStmt)
