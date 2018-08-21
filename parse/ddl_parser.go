@@ -2,15 +2,15 @@ package parse
 
 import (
 	"github.com/xwb1989/sqlparser"
-	"fmt"
+	"log"
 )
 
 func DDLParser(query string) (string, string, bool) {
 	stmt, err := sqlparser.Parse(query)
 	if err != nil {
 		//panic(err.Error())
-		fmt.Println(query)
-		fmt.Println(err.Error())
+		log.Println(query)
+		log.Println(err.Error())
 		return "", "", false
 
 	}
@@ -35,7 +35,7 @@ func DDLParser(query string) (string, string, bool) {
 		"drop vindex":
 		return "", "", false
 	default:
-		fmt.Printf("\n无法解析该DDL语句：%#v\n", ddlStmt)
+		log.Printf("\n无法解析该DDL语句：%#v\n", ddlStmt)
 		return "", "", false
 	}
 }

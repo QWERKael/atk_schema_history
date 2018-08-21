@@ -9,8 +9,13 @@ import (
 )
 
 type YAMLConfig struct {
-	ManagerNode NodeConfig   `yaml:"managerNode"`
-	CliNodes    []NodeConfig `yaml:"cliNodes"`
+	CommonConfig CommonConfig
+	ManagerNode  NodeConfig   `yaml:"managerNode"`
+	CliNodes     []NodeConfig `yaml:"cliNodes"`
+}
+
+type CommonConfig struct {
+	Initdata bool `yaml:"initdata"`
 }
 type NodeConfig struct {
 	Host       string `yaml:"host"`

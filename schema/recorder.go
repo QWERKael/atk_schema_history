@@ -19,7 +19,7 @@ func (mc *ManagerConn) InitSchema(schemaName string, initTables map[string]strin
 		tableNames = append(tableNames, tableName)
 	}
 	sqlStmt := fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME IN (%s)", schemaName, "'"+strings.Join(tableNames, "', '")+"'")
-	fmt.Print(sqlStmt)
+	//fmt.Print(sqlStmt)
 	rows, err := mc.Conn.Query(sqlStmt)
 	if err != nil {
 		panic(err.Error())
