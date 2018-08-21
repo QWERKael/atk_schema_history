@@ -13,7 +13,8 @@ type YAMLConfig struct {
 	CommonConfig CommonConfig `yaml:"commonConfig"`
 	ManagerNode  NodeConfig   `yaml:"managerNode"`
 	CliTemplate  NodeConfig   `yaml:"cliTemplate"`
-	CliNodes     []NodeConfig `yaml:"cliNodes"`
+	CliNodesTmp  []NodeConfig `yaml:"cliNodes"`
+	CliNodes     []NodeConfig
 }
 
 type CommonConfig struct {
@@ -42,13 +43,15 @@ func GetConfig(fileName string) *YAMLConfig {
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 	}
-	for _, cliNode := range cfg.CliNodes {
+	for _, cliNode := range cfg.CliNodesTmp {
 		if cliNode.Host == "" && cliNode.Hosts != "" {
 			for _, host := range strings.Split(cliNode.Hosts, ",") {
 				cliNode.Hosts = ""
 				cliNode.Host = host
 				cfg.CliNodes = append(cfg.CliNodes, cliNode)
 			}
+		} else if cliNode.Host != "" && cliNode.Hosts == "" {
+			cfg.CliNodes = append(cfg.CliNodes, cliNode)
 		} else if (cliNode.Host == "" && cliNode.Hosts == "") || (cliNode.Host != "" && cliNode.Hosts != "") {
 			panic(fmt.Errorf("配置文件错误，host和hosts不能同时为空或者同时不为空"))
 		}

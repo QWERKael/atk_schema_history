@@ -39,9 +39,7 @@ func (p *Program) run() {
 	}
 	log.Println("监听DDL...")
 	for _, cliNode := range cfg.CliNodes {
-		if cliNode.Host != "" {
 			log.Printf("%#v", cliNode)
 			go schema.ListeningBinglog(cliNode, managerConn)
-		}
 	}
 }
