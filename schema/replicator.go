@@ -10,6 +10,7 @@ import (
 	"time"
 	"atk_schema_history/config"
 	"atk_schema_history/connect"
+	"atk_schema_history/mylog"
 )
 
 func ListeningBinglog(nc config.NodeConfig, managerConn *ManagerConn) {
@@ -41,4 +42,5 @@ func ListeningBinglog(nc config.NodeConfig, managerConn *ManagerConn) {
 			}
 		}
 	}
+	mylog.Log.Infof("%s:%d 监听已中断...", nc.Host, nc.Port)
 }

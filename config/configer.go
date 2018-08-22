@@ -2,11 +2,11 @@ package config
 
 import (
 	"io/ioutil"
-	"log"
 	"gopkg.in/yaml.v2"
 	"fmt"
 	"github.com/siddontang/go-mysql/replication"
 	"strings"
+	"github.com/siddontang/go-log/log"
 )
 
 type YAMLConfig struct {
@@ -18,7 +18,8 @@ type YAMLConfig struct {
 }
 
 type CommonConfig struct {
-	Initdata bool `yaml:"initdata"`
+	Initdata bool   `yaml:"initdata"`
+	Logfile  string `yaml:"logfile"`
 }
 type NodeConfig struct {
 	Host       string `yaml:"host"`
@@ -56,7 +57,7 @@ func GetConfig(fileName string) *YAMLConfig {
 			panic(fmt.Errorf("配置文件错误，host和hosts不能同时为空或者同时不为空"))
 		}
 	}
-	//fmt.Printf("%#v", cfg.CliNodes)
+	//log.Infof("%#v", cfg.CliNodes)
 	return cfg
 }
 
