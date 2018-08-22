@@ -68,6 +68,6 @@ func (mc *ManagerConn) SyncSchema(DSN string, host string, port uint16, schemaNa
 	connect.CommonInsert(mc.Conn, "TABLES_LOG", tableCN, tablesRst)
 	connect.CommonInsert(mc.Conn, "COLUMNS_LOG", columnCN, columnsRst)
 	sclCN := []string{"host", "port", "ddl_stmt", "create_stmt", "insert_time"}
-	sclRst := [][]interface{}{{host, port, ddlStmt, connect.GetCreateTable(db, schemaName, tableName), binlogEventTime}}
+	sclRst := [][]interface{}{{host, port, ddlStmt, connect.GetCreateTable(db, schemaName, tableName), binlogEventTime.Format("2006-01-02 15:04:05")}}
 	connect.CommonInsert(mc.Conn, "SCHEMA_CHANGE_LOG", sclCN, sclRst)
 }
