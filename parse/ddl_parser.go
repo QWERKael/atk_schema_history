@@ -1,41 +1,56 @@
 package parse
 
 import (
-	"github.com/xwb1989/sqlparser"
+	"github.com/pingcap/tidb/ast"
+	"github.com/pingcap/tidb/parser"
 	"atk_schema_history/mylog"
 )
 
 func DDLParser(query string) (string, string, bool) {
-	stmt, err := sqlparser.Parse(query)
+	sqlParser := parser.New()
+	stmtNodes, err := sqlParser.Parse(query, "", "")
 	if err != nil {
-		//panic(err.Error())
-		mylog.Log.Warningf(query)
-		mylog.Log.Warningf(err.Error())
+		mylog.Log.Infof("parse error:\n%v\n%s", err, query)
 		return "", "", false
+	}
+	v := visitor{}
+	for _, stmtNode := range stmtNodes {
+		stmtNode.Accept(&v)
+	}
+	return v.schemaName, v.tableName, true
+}
 
-	}
-	ddlStmt, ok := stmt.(*sqlparser.DDL)
-	if ok == false {
-		return "", "", false
-	}
-	switch ddlStmt.Action {
-	case "create",
-		"rename",
-		"alter":
-		schemaName := ddlStmt.NewName.Qualifier.String()
-		tableName := ddlStmt.NewName.Name.String()
-		return schemaName, tableName, true
-	case "drop":
-		schemaName := ddlStmt.Table.Qualifier.String()
-		tableName := ddlStmt.Table.Name.String()
-		return schemaName, tableName, false
-	case "truncate",
-		"create vindex",
-		"add vindex",
-		"drop vindex":
-		return "", "", false
+type visitor struct {
+	schemaName string
+	tableName  string
+}
+
+func (v *visitor) Enter(in ast.Node) (out ast.Node, skipChildren bool) {
+	switch in.(type) {
+	case *ast.AlterTableStmt,
+	*ast.CreateDatabaseStmt,
+	*ast.CreateIndexStmt,
+	*ast.CreateTableStmt,
+	*ast.CreateViewStmt,
+	*ast.DropDatabaseStmt,
+	*ast.DropIndexStmt,
+	*ast.DropTableStmt,
+	*ast.RenameTableStmt,
+	*ast.TruncateTableStmt:
+		return in, false
+	case *ast.TableName:
+		//fmt.Printf("%T\n", in)
+		//fmt.Printf("%#v\n", in)
+		//fmt.Printf("%#v\n", in.(*ast.TableName).Name.O)
+		v.schemaName = in.(*ast.TableName).Schema.O
+		v.tableName = in.(*ast.TableName).Name.O
+		return in, true
 	default:
-		mylog.Log.Errorf("\n无法解析该DDL语句：%#v\n", ddlStmt)
-		return "", "", false
+		return in, true
 	}
+	return in, false
+}
+
+func (v *visitor) Leave(in ast.Node) (out ast.Node, ok bool) {
+	return in, true
 }
