@@ -13,14 +13,18 @@ func DDLParser(query string) (string, string, bool) {
 		mylog.Log.Infof("parse error:\n%v\n%s", err, query)
 		return "", "", false
 	}
-	v := visitor{}
+	v := visitor{isDDL: false}
 	for _, stmtNode := range stmtNodes {
 		stmtNode.Accept(&v)
 	}
-	return v.schemaName, v.tableName, true
+	if v.isDDL {
+		return v.schemaName, v.tableName, true
+	}
+	return "", "", false
 }
 
 type visitor struct {
+	isDDL      bool
 	schemaName string
 	tableName  string
 }
@@ -44,6 +48,7 @@ func (v *visitor) Enter(in ast.Node) (out ast.Node, skipChildren bool) {
 		//fmt.Printf("%#v\n", in.(*ast.TableName).Name.O)
 		v.schemaName = in.(*ast.TableName).Schema.O
 		v.tableName = in.(*ast.TableName).Name.O
+		v.isDDL = true
 		return in, true
 	default:
 		return in, true
